@@ -8,28 +8,20 @@ import { UserButton } from "@clerk/nextjs";
 
 
 export default function DashBoardNavBar() {
-    const path = usePathname();
+    let path = usePathname();
+    path = path.split("/")[2];
+    const capitalizedPathStr = path.replace("/", "").replace(/^./, (match) => match.toUpperCase());
     return (
-        <nav className={"flex h-20 w-full px-56 bg-[hsl(287,60%,90%)] dark:bg-transparent"}>
-            <div className={"w-1/6 text-2xl font-bold flex justify-end items-center"}>
+        <nav className={"z-30 md:flex h-20 w-full px-2 bg-[hsl(287,60%,90%)] dark:bg-transparent fixed hidden"}>
+            <div className={"w-1/6 text-2xl font-bold flex justify-start items-center"}>
                 OnLyne
             </div>
-            <div className={"w-4/6"}>
-                <ul className={"list-none flex justify-center space-x-7 items-center h-full text-md"}>
-                    <li>
-                        <NavBarButton variant={path === "/dashboard" ? "primary" : "transparent"} href="/dashboard">Dashboard</NavBarButton>
-                    </li>
-                    <li>
-                        <NavBarButton variant={path === "/chats" ? "primary" : "transparent"} href="/chats">Chats</NavBarButton>
-                    </li>
-                    <li>
-                        <NavBarButton variant={path === "/projects" ? "primary" : "transparent"} href="/projects">Projects</NavBarButton>
-                    </li>
-                </ul>
+            <div className={"w-4/6 text-3xl font-bold flex justify-center items-center"}>
+                <p>{capitalizedPathStr}</p>
             </div>
-            <div className={"w-1/6 flex justify-end items-center"} >
+            <div className={"w-1/6 flex justify-start items-center"} >
                 <ModeToggle />
-                <span className={"mx-5"} />
+                <span className={"mx-3"} />
                 <UserButton afterSignOutUrl="/" appearance={{
                     elements: {
                         avatarBox: "h-9 w-9"

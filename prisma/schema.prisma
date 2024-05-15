@@ -7,75 +7,176 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum EmployeeStatus {
+  ACTIVE
+  PROBATION
+  ONLEAVE
+  EXEMPLOYEE
+  PARTTIME
+  INTERN
+}
+
 model Profile {
-  id        String @id @default(uuid())
-  profileId String @unique
-  name      String
-  email     String
-  imageUrl  String
+  id       String @id
+  name     String
+  username String @unique
+  email    String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  servers  Server[]
-  members  Member[]
-  channels Channel[]
+  Employee     Employee?
+  Organization Organization?
 }
 
-model Server {
-  id         String @id @default(uuid())
-  name       String
-  imageUrl   String
-  inviteCode String
+model Employee {
+  id             String         @id @default(uuid())
+  employeeId     String         @unique
+  designation    String
+  status         EmployeeStatus @default(ACTIVE)
+  office         String
+  doj            DateTime
+  idCardImageUrl String
 
-  profileId String
-  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId String  @unique
+  profile   Profile @relation(references: [id], fields: [profileId], onDelete: Cascade)
+
+  organizationId String
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
+
+  Teams         Team[]
+  EmployeeRoles EmployeeRole[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members  Member[]
-  channels Channel[]
-
-  @@index([profileId])
+  @@index([organizationId])
 }
 
-model Member {
-  id String @id @default(uuid())
+enum Role {
+  OWNER
+  MANAGER
+  REGULAR
+}
 
-  profileId String
-  profile   Profile @relation(fields: [profileId], references: [id])
+model EmployeeRole {
+  id   String @id @default(uuid())
+  role Role   @default(REGULAR)
 
-  serverId String
-  server   Server @relation(fields: [serverId], references: [id])
+  employeeId String
+  employee   Employee @relation(references: [id], fields: [employeeId], onDelete: Cascade)
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([profileId])
-  @@index([serverId])
+  @@index([employeeId])
+  @@index([teamId])
+  @@index([employeeId, role])
 }
 
-enum ChannelType {
-  TEXT
-  AUDIO
-  VIDEO
+model Organization {
+  id   String @id @default(uuid())
+  name String
+
+  ownerId String  @unique
+  owner   Profile @relation(references: [id], fields: [ownerId], onDelete: Cascade)
+
+  Employees Employee[]
+  Teams     Team[]
+
+  Projects Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Channel {
-  id          String      @id @default(uuid())
-  name        String
-  channelType ChannelType @default(TEXT)
+model Team {
+  id   String @id @default(uuid())
+  name String
 
-  profileId String
-  profile   Profile @relation(fields: [profileId], references: [id])
+  organizationId String
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
 
-  serverId String
-  server   Server @relation(fields: [serverId], references: [id])
+  Employees     Employee[]
+  Projects      Project[]
+  EmployeeRoles EmployeeRole[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([profileId])
-  @@index([serverId])
+  @@index([organizationId])
 }
+
+model Project {
+  id   String @id @default(uuid())
+  name String
+
+  organizationId String
+  organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
+
+  Teams Team[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// model Server {
+//   id         String @id @default(uuid())
+//   name       String
+//   imageUrl   String
+//   inviteCode String
+
+//   profileId String
+//   profile   Profile @relation(fields: [profileId], references: [id])
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   members  Member[]
+//   channels Channel[]
+
+//   @@index([profileId])
+// }
+
+// model Member {
+//   id String @id @default(uuid())
+
+//   profileId String
+//   profile   Profile @relation(fields: [profileId], references: [id])
+
+//   serverId String
+//   server   Server @relation(fields: [serverId], references: [id])
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   @@index([profileId])
+//   @@index([serverId])
+// }
+
+// enum ChannelType {
+//   TEXT
+//   AUDIO
+//   VIDEO
+// }
+
+// model Channel {
+//   id          String      @id @default(uuid())
+//   name        String
+//   channelType ChannelType @default(TEXT)
+
+//   profileId String
+//   profile   Profile @relation(fields: [profileId], references: [id])
+
+//   serverId String
+//   server   Server @relation(fields: [serverId], references: [id])
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   @@index([profileId])
+//   @@index([serverId])
+// }

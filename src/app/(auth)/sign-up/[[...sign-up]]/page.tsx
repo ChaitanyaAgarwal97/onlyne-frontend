@@ -1,5 +1,5 @@
-import { SignUp } from "@clerk/nextjs";
+import { SignUp, SignedOut } from "@clerk/nextjs";
 
 export default function Page() {
-    return <SignUp />
+    return <SignedOut><SignUp /></SignedOut>
 }

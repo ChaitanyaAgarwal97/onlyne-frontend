@@ -7,3 +7,9 @@ export const formatDate = (date: Date) => {
 
   return formatter.format(date);
 };
+
+export const formatNum = (number: string | number) => {
+  const formatter = new Intl.NumberFormat("en-us");
+
+  return formatter.format(+number);
+};
