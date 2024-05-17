@@ -6,15 +6,17 @@ import { EmployeeSchema } from "@/zodSchema/employeeSchema";
 export type FormState = {
   issues: string[];
   fields?: Record<string, string | Date>;
+  message?: string;
 };
 
 export async function addEmployeeAction(
   prevState: FormState,
   data: FormData
 ): Promise<FormState> {
+  console.log(data.get("idCardImageUrl"))
   const formData = Object.fromEntries(data);
+  const parsed = EmployeeSchema.safeParse(formData);
 
-  const parsed = EmployeeSchema.safeParse(FormData);
 
   // Check to see if inputs are correct
   if (!parsed.success) {
@@ -63,7 +65,9 @@ export async function addEmployeeAction(
     };
   }
 
+
   return {
     issues: [],
+    message: "success"
   };
 }

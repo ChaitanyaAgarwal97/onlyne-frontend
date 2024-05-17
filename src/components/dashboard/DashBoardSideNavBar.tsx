@@ -6,8 +6,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Url } from "next/dist/shared/lib/router/router";
 import { cn } from "@/lib/utils";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/db";
 
-export default function DashBoardSideNavBar() {
+export default function DashBoardSideNavBar({ isOwner }: { isOwner: boolean }) {
     const path = usePathname();
     const organizatonId = path.split("/")[1];
 
@@ -20,20 +22,20 @@ export default function DashBoardSideNavBar() {
                     </NavListItem>
                 </ToolTip>
                 <Separator /> */}
-                <ToolTip toolTipContent="DashBoard">
+                {isOwner && <ToolTip toolTipContent="DashBoard">
                     <div>
                         <NavListItem href={`/${organizatonId}/dashboard`} path={path}>
                             <LayoutDashboard size={30} />
                         </NavListItem>
                     </div>
-                </ToolTip>
-                <ToolTip toolTipContent="Employees">
+                </ToolTip>}
+                {/* <ToolTip toolTipContent="Employees">
                     <div>
                         <NavListItem href={`/${organizatonId}/employees`} path={path}>
                             <Users size={30} />
                         </NavListItem>
                     </div>
-                </ToolTip>
+                </ToolTip> */}
                 <ToolTip toolTipContent="Chats">
                     <div>
                         <NavListItem href={`/${organizatonId}/chats`} path={path}>

@@ -42,7 +42,7 @@ export default function CreateForm() {
         <ScrollArea>
             {state?.issues?.length !== 0 &&
                 <ul className="text-rose-500">
-                    {state?.issues?.map(issue => <li key={issue} className="flex space-x-2"><CircleX size={24} /> <span>{issue}</span></li>)}
+                    {state?.issues?.map((issue, index) => <li key={`${issue}-${index}`} className="flex space-x-2"><CircleX size={24} /> <span>{issue}</span></li>)}
                 </ul>
             }
             <Form {...form}>

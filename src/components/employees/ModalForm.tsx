@@ -3,7 +3,15 @@
 import { Employee } from "@/types/Employee"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { cn } from "@/lib/utils"
+import { formatDate } from "@/lib/formatter"
+import { EmployeeSchema } from "@/zodSchema/employeeSchema"
+import { useState } from "react"
+import { useParams } from "next/navigation"
 
+
+
+import { CalendarIcon, CircleX, LoaderCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -29,22 +37,21 @@ import {
 import { Calendar } from "@/components/ui/calendar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { FileUploader } from "@/components/FileUploader"
+import { useToast } from "@/components/ui/use-toast"
 
-import { cn } from "@/lib/utils"
-import { formatDate } from "@/lib/formatter"
-import { CalendarIcon, CircleX, LoaderCircle } from "lucide-react"
-import { useFormState } from "react-dom"
-import { addEmployeeAction } from "@/actions/addEmployeeAction"
-import { useRef } from "react"
-import { randomUUID } from "crypto"
-import { EmployeeSchema } from "@/zodSchema/employeeSchema"
-
-export function ModalForm({ employee, }: {
-    employee?: Employee
+export function ModalForm({ employee }: {
+    employee?: Employee,
 }) {
-    const [state, formAction, isPending] = useFormState(addEmployeeAction, {
+    const { organizationId } = useParams<{ organizationId: string }>();
+
+    const [state, setState] = useState<{ message: string, issues: string[], fields?: Employee }>({
+        message: "",
         issues: [],
-    })
+    });
+
+    const [isPending, setIsPending] = useState<boolean>(false);
+
+    const { toast } = useToast();
 
     const form = useForm<Employee>({
         resolver: zodResolver(EmployeeSchema),
@@ -55,21 +62,81 @@ export function ModalForm({ employee, }: {
             status: employee?.status ?? "ACTIVE",
             office: employee?.office ?? "",
             doj: employee?.doj ?? "",
+            email: employee?.email ?? "",
+            organizationId: organizationId,
             ...(state?.fields ?? {})
         },
     })
 
-    const formRef = useRef<HTMLFormElement>(null);
+    if (state?.message === "success") {
+        if (!employee) {
+            toast({
+                description: "Employee added to organization!"
+            });
+        } else {
+            toast({
+                description: "Employee's data updated!"
+            });
+        }
+        form.reset();
+        setState({
+            message: "",
+            issues: [],
+        })
+    }
+
+    async function submitHandler(data: Employee) {
+        try {
+            setIsPending(true);
+
+            let method = "POST";
+            if (employee) {
+                method = "PATCH"
+            }
+
+            let res = await fetch("/api/employees", {
+                method: method,
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            res = await res.json()
+
+            setState({
+                message: res.message,
+                issues: res.issues,
+                fields: res.fields
+            });
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setIsPending(false);
+        }
+    }
 
     return (
         <ScrollArea>
             {state?.issues?.length !== 0 &&
-                <ul className="text-rose-500">
-                    {state?.issues?.map(issue => <li key={randomUUID()}><CircleX size={30} /> {issue}</li>)}
+                <ul className="text-rose-500 my-2">
+                    {state?.issues?.map((issue, index) => <li key={`${issue}-${index}`} className="flex space-x-2 items-center"><CircleX size={17} /> <p>{issue}</p></li>)}
                 </ul>
             }
             <Form {...form}>
-                <form ref={formRef} action={formAction} onSubmit={form.handleSubmit(() => formRef.current?.submit(), (error) => console.log(error))} className="space-y-8">
+                <form onSubmit={form.handleSubmit(submitHandler)} className="space-y-8">
+                    <FormField
+                        control={form.control}
+                        name="organizationId"
+                        render={({ field }) => (
+                            <FormItem hidden={true}>
+                                <FormLabel>Organization ID</FormLabel>
+                                <FormControl>
+                                    <Input {...field} disabled={true} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="idCardImageUrl"
@@ -100,7 +167,7 @@ export function ModalForm({ employee, }: {
                             <FormItem>
                                 <FormLabel>Email Address</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Enter Email Address" type="email" {...field} disabled={employee !== undefined} />
+                                    <Input placeholder="Enter Email Address" {...field} disabled={employee !== undefined} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -162,7 +229,7 @@ export function ModalForm({ employee, }: {
                         name="doj"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="block">DOJ</FormLabel>
+                                <FormLabel className="block">Date of Joining</FormLabel>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <FormControl>
@@ -199,9 +266,9 @@ export function ModalForm({ employee, }: {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit" variant={"primary"}>
+                    <Button type="submit" variant={"primary"} aria-disabled={isPending}>
                         {!isPending && <div>Submit</div>}
-                        {isPending && <div><LoaderCircle size={28} className="animate-spin" /> Loading...</div>}
+                        {isPending && <div className="flex space-x-4 items-center"><LoaderCircle size={28} className="animate-spin" /> <p>Loading...</p></div>}
                     </Button>
                 </form>
             </Form>

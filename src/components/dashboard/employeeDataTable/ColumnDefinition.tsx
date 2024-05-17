@@ -44,8 +44,8 @@ export const columns: ColumnDef<EmployeeDataTable>[] = [
         header: "Email"
     },
     {
-        accessorKey: "role",
-        header: "Role"
+        accessorKey: "designation",
+        header: "Designation"
     },
     {
         accessorKey: "status",

@@ -25,7 +25,6 @@ import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { ModalForm } from "@/components/employees/ModalForm"
 import { Modal } from "@/components/Modal"
-
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]

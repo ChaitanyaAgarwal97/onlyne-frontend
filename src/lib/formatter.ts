@@ -1,7 +1,7 @@
 export const formatDate = (date: Date) => {
-  const formatter = new Intl.DateTimeFormat("en-us", {
+  const formatter = new Intl.DateTimeFormat("en-uk", {
     year: "numeric",
-    month: "numeric",
+    month: "long",
     day: "2-digit",
   });
 
