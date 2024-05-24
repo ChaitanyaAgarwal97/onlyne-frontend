@@ -41,7 +41,10 @@ export default function ChannelCreateModalContent({ userEmployeeData, channelTyp
                 teamId: teamId,
             }
 
-            let res = await fetch("/api/channels/", {
+            let res: Response & {
+                message?: string,
+                issues?: string[]
+            } = await fetch("/api/channels/", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {
@@ -52,6 +55,7 @@ export default function ChannelCreateModalContent({ userEmployeeData, channelTyp
             res = await res.json()
 
             console.log(res);
+
             if (res.message && res.message === "success") {
                 toast({
                     description: "Channel Created",
@@ -59,7 +63,8 @@ export default function ChannelCreateModalContent({ userEmployeeData, channelTyp
                 return router.refresh();
             }
 
-            setState({ issues: [res.issues] });
+            if (res.issues) setState({ issues: [...res.issues] });
+            else setState({ issues: [""] })
         } catch (error) {
             console.log(error)
         } finally {

@@ -33,7 +33,12 @@ import qs from "query-string"
 export type Applicant = z.infer<typeof ApplicantSchema>;
 
 export function ApplicantForm({ applicant }: { applicant?: Applicant & { id: string } }) {
-    const { organizationId } = useParams<{ organizationId: string }>();
+    const params = useParams<{ organizationId: string }>();
+
+    let organizationId = "";
+    if (!!params) {
+        organizationId = params.organizationId;
+    }
 
     const router = useRouter();
 

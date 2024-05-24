@@ -76,6 +76,7 @@ export function DataTable<TData, TValue>({ columns, data, teamId }: DataTablePro
                 setIsPending(true);
 
                 let selectedEmployeesId: string[] = [];
+                // @ts-ignore
                 selectedEmployeesId = selectedRows.map(row => row.original?.id);
 
                 const data = {
@@ -94,7 +95,9 @@ export function DataTable<TData, TValue>({ columns, data, teamId }: DataTablePro
                 });
                 res = await res.json()
                 setState({
+                    // @ts-ignore
                     message: res.message,
+                    // @ts-ignore
                     issues: res.issues,
                 });
             }

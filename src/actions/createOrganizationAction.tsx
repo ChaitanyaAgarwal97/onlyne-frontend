@@ -57,7 +57,6 @@ export async function createOrganizationAction(prevState: FormState, data: FormD
             doj: new Date(),
             designation: "Owner",
             office: "All",
-            idCardImageUrl: "",
             role: "OWNER",
             profileId: userId,
             organizationId: organization.id,

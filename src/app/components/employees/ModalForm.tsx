@@ -42,7 +42,10 @@ import { useToast } from "@/app/components/ui/use-toast"
 export function ModalForm({ employee }: {
     employee?: Employee,
 }) {
-    const { organizationId } = useParams<{ organizationId: string }>();
+    const params = useParams<{ organizationId: string }>();
+
+    let organizationId = "";
+    if (params) organizationId = params.organizationId;
 
     const [state, setState] = useState<{ message: string, issues: string[], fields?: Employee }>({
         message: "",
@@ -107,8 +110,11 @@ export function ModalForm({ employee }: {
             res = await res.json()
 
             setState({
+                // @ts-ignore
                 message: res.message,
+                // @ts-ignore
                 issues: res.issues,
+                // @ts-ignore
                 fields: res.fields
             });
         } catch (error) {

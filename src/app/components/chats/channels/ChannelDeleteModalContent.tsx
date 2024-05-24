@@ -13,7 +13,9 @@ export default function ChannelDeleteModalContent({ channel }: { channel: Channe
 
     async function deleteButtonHandler() {
         try {
-            let res = await fetch(`/api/channels/${channel.id}`, {
+            let res: Response & {
+                message?: string
+            } = await fetch(`/api/channels/${channel.id}`, {
                 method: "DELETE",
             });
 

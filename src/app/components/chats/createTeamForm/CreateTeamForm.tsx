@@ -41,7 +41,10 @@ export default function CreateTeamForm({ data, userId }: { data?: (Employee & { 
         })
     }
 
-    const { organizationId } = useParams<{ organizationId: string }>();
+    const params = useParams<{ organizationId: string }>();
+
+    let organizationId = "";
+    if (params) organizationId = params.organizationId;
 
     const [state, setState] = useState<{ message: string, issues: string[], fields?: Team }>({
         message: "",
