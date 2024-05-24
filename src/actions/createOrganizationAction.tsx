@@ -51,6 +51,37 @@ export async function createOrganizationAction(prevState: FormState, data: FormD
         }
     }
 
+    // Adding owner as employee
+    const employee = await prisma.employee.create({
+        data: {
+            doj: new Date(),
+            designation: "Owner",
+            office: "All",
+            idCardImageUrl: "",
+            role: "OWNER",
+            profileId: userId,
+            organizationId: organization.id,
+        }
+    })
+
+    if (!employee.id) {
+        return {
+            issues: ['Something went wrong'],
+            fields: parsed.data,
+        }
+    }
+
+    console.log(employee.id);
+
+    // General channel added to organization channels list
+    const channel = await prisma.channel.create({
+        data: {
+            name: "general",
+            createdById: employee.id,
+            organizationId: organization.id,
+        },
+    });
+
     return {
         issues: [],
         message: "success",

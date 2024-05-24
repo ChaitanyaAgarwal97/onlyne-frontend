@@ -2,6 +2,7 @@ import { prisma } from "@/db";
 import { Employee } from "@/types/Employee";
 import { EmployeeSchema } from "@/zodSchema/employeeSchema";
 import { auth } from "@clerk/nextjs/server";
+import { EmployeeStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 // Create operation on employees
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
           message: "Unauthorized",
           issues: [],
         }),
-        { status: 401 }
+        { status: 401 },
       );
 
     const data: Employee = await req.json();
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
           issues: parsed.error.issues.map((issue) => issue.message),
           fields: data,
         }),
-        { status: 405 }
+        { status: 405 },
       );
 
     const { email, ...employeeData } = data;
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
           issues: ["This user does not exist"],
           fields: data,
         }),
-        { status: 405 }
+        { status: 405 },
       );
 
     let employee = await prisma.employee.findFirst({
@@ -65,20 +66,23 @@ export async function POST(req: NextRequest) {
         ],
       },
     });
+    console.log(employee);
 
-    if (employee)
+    if (employee && employee.status !== EmployeeStatus.EXEMPLOYEE)
       return new NextResponse(
         JSON.stringify({
           message: "",
-          issues: ["This user is already an employee in an organization"],
+          issues: ["This user is already in an organization"],
           fields: data,
-        })
+        }),
       );
 
+    // New Employee added
     employee = await prisma.employee.create({
       data: {
         ...employeeData,
         profileId: profileId.id,
+        doj: new Date(employeeData.doj),
       },
     });
 
@@ -89,7 +93,7 @@ export async function POST(req: NextRequest) {
           issues: [],
           fields: data,
         }),
-        { status: 500 }
+        { status: 500 },
       );
 
     return new NextResponse(
@@ -99,16 +103,17 @@ export async function POST(req: NextRequest) {
       }),
       {
         status: 201,
-      }
+      },
     );
   } catch (error) {
+    console.log(error);
     return new NextResponse(
       JSON.stringify({
         message: "Something went wrong",
         issues: [],
         fields: {},
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -124,7 +129,7 @@ export async function PATCH(req: NextRequest) {
           message: "Unauthorized",
           issues: [],
         }),
-        { status: 401 }
+        { status: 401 },
       );
 
     const data: Employee = await req.json();
@@ -138,7 +143,7 @@ export async function PATCH(req: NextRequest) {
           issues: parsed.error.issues.map((issue) => issue.message),
           fields: data,
         }),
-        { status: 405 }
+        { status: 405 },
       );
 
     const { email, ...employeeData } = data;
@@ -149,6 +154,7 @@ export async function PATCH(req: NextRequest) {
       },
       data: {
         ...employeeData,
+        doj: new Date(employeeData.doj),
       },
     });
 
@@ -159,7 +165,7 @@ export async function PATCH(req: NextRequest) {
           issues: [],
           fields: data,
         }),
-        { status: 500 }
+        { status: 500 },
       );
 
     return new NextResponse(
@@ -169,16 +175,17 @@ export async function PATCH(req: NextRequest) {
       }),
       {
         status: 201,
-      }
+      },
     );
   } catch (error) {
+    console.log(error);
     return new NextResponse(
       JSON.stringify({
         message: "Something went wrong",
         issues: [],
         fields: {},
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

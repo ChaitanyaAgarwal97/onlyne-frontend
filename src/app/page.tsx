@@ -1,8 +1,5 @@
-
-import { ModeToggle } from "@/components/providers/mode-toggle";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <ModeToggle />
-  );
+  return redirect("/createOrganization");
 }

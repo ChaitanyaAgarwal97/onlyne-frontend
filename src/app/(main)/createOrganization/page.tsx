@@ -1,8 +1,9 @@
-import { Modal } from "@/components/Modal";
-import CreateOrganizationForm from "@/components/organization/CreateOrganizationForm";
+import { Modal } from "@/app/components/Modal";
+import CreateOrganizationForm from "@/app/components/organization/CreateOrganizationForm";
 import { prisma } from "@/db";
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
+import { EmployeeStatus } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 export default async function CreateOrganizationPage() {
@@ -10,27 +11,13 @@ export default async function CreateOrganizationPage() {
 
     if (!userId) return redirect("/sign-up");
 
-    const organizationData = await prisma.organization.findFirst({
+    const employee = await prisma.employee.findFirst({
         where: {
-            OR: [
-                {
-                    ownerId: userId,
-                },
-                {
-                    Employees: {
-                        some: {
-                            profileId: userId,
-                        }
-                    }
-                }
-            ]
-        },
-        select: {
-            id: true
+            profileId: userId,
         }
-    });
+    })
 
-    if (organizationData) return redirect(`/${organizationData.id}/dashboard`);
+    if (employee && employee.status !== EmployeeStatus.EXEMPLOYEE) return redirect(`/${employee.organizationId}/dashboard`);
 
     return (
         <div className="h-full">
@@ -43,7 +30,7 @@ export default async function CreateOrganizationPage() {
             </div>
             <div className="flex flex-col justify-center items-center w-full h-full space-y-3 text-xl">
                 <p>You are not part of any organization. Create one or ask your employer to add you in one.</p>
-                <Modal title="Create Organization" form={<CreateOrganizationForm />}>Create Organization</Modal>
+                <Modal title="Create Organization" form={<CreateOrganizationForm />} contentClasses="md:h-fit">Create Organization</Modal>
             </div>
         </div>
     );

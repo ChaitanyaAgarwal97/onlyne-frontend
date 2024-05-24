@@ -1,11 +1,11 @@
-import IDCard from "@/components/dashboard/IDCard";
-import StatusCard from "@/components/dashboard/StatusCards";
-import { DataTable } from "@/components/dashboard/employeeDataTable/DataTable"
+import IDCard from "@/app/components/dashboard/IDCard";
+import StatusCard from "@/app/components/dashboard/StatusCards";
+import { DataTable } from "@/app/components/dashboard/employeeDataTable/DataTable"
 import { AlarmClockCheck, FileCheck, Plus, Users } from "lucide-react";
 
 import { formatDate, formatNum } from "@/lib/formatter";
 import { auth } from "@clerk/nextjs/server";
-import { EmployeeDataTable, columns } from "@/components/dashboard/employeeDataTable/ColumnDefinition"
+import { EmployeeDataTable, columns } from "@/app/components/dashboard/employeeDataTable/ColumnDefinition"
 import { prisma } from "@/db";
 import { redirect } from "next/navigation";
 
@@ -50,9 +50,13 @@ export default async function DashBoardPage({ params }: { params: { organization
         },
         include: {
             Employees: {
+                where: {
+                    NOT: {
+                        role: "OWNER"
+                    }
+                },
                 select: {
                     employeeId: true,
-                    idCardImageUrl: true,
                     profile: {
                         select: {
                             name: true,
@@ -62,7 +66,8 @@ export default async function DashBoardPage({ params }: { params: { organization
                     designation: true,
                     status: true,
                     office: true,
-                    doj: true
+                    doj: true,
+                    role: true
                 }
             },
             owner: {
@@ -73,39 +78,38 @@ export default async function DashBoardPage({ params }: { params: { organization
         }
     })
 
-    if (!organizationData) {
+    if (!organizationData || organizationData.id !== params.organizationId) {
         return redirect("/createOrganization")
     }
 
     if (organizationData.ownerId !== userId) return redirect(`/${organizationData.id}/chats`);
 
     let data: EmployeeDataTable[] = [];
-    if (organizationData.ownerId === userId) {
-        data = organizationData.Employees.map(employee => {
-            return {
-                organizationId: "",
-                employeeId: employee.employeeId,
-                name: employee.profile.name,
-                email: employee.profile.email,
-                idCardImageUrl: employee.idCardImageUrl,
-                designation: employee.designation,
-                status: employee.status,
-                office: employee.office,
-                doj: formatDate(employee.doj),
-            }
-        })
-    }
+    data = organizationData.Employees.map(employee => {
+        return {
+            organizationId: "",
+            employeeId: employee.employeeId,
+            name: employee.profile.name,
+            email: employee.profile.email,
+            // idCardImageUrl: employee.idCardImageUrl,
+            role: employee.role !== "OWNER" ? employee.role : "REGULAR",
+            designation: employee.designation,
+            status: employee.status,
+            office: employee.office,
+            doj: formatDate(employee.doj),
+        }
+    })
 
     const newEmployees = await countNewEmployees();
 
 
     return (
-        <div className="container md:px-0 h-full">
-            <div className={"grid lg:grid-cols-5 lg:grid-rows-[repeat(7,5rem)] gap-8"} >
+        <div className="container md:px-0 h-full my-4">
+            <div className={"md:w-full md:grid md:grid-cols-4 md:grid-row-[repeat(7, 5rem)] lg:grid-cols-5 lg:grid-rows-[repeat(7,5rem)] gap-8 space-y-6 md:space-y-0"} >
                 <div className={"col-span-4 text-4xl font-semibold"}>
                     {`Hi, ${organizationData.owner.name}`}
                 </div>
-                <div className="col-span-1 row-span-3">
+                <div className="col-span-1 row-span-3 lg:block hidden">
                     {/* <IDCard /> */}
                 </div>
                 <div className="row-span-2">
@@ -132,7 +136,7 @@ export default async function DashBoardPage({ params }: { params: { organization
                         <p className="text-sm ">Projects Completed</p>
                     </StatusCard>
                 </div>
-                <div className="row-span-2 col-span-5">
+                <div className="row-span-2 md:col-span-4 lg:col-span-5">
                     <DataTable data={data} columns={columns} />
                 </div>
             </div>

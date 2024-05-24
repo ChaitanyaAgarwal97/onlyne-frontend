@@ -10,7 +10,8 @@ export async function GET() {
     !user?.primaryEmailAddress ||
     !user?.fullName ||
     !user?.id ||
-    !user?.username
+    !user?.username ||
+    !user?.imageUrl
   )
     return redirect("/sign-up");
 
@@ -19,6 +20,7 @@ export async function GET() {
     id: user.id,
     name: user.fullName,
     username: user.username,
+    profileImage: user.imageUrl,
   };
 
   const profile = await prisma.profile.findUnique({

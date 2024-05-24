@@ -1,8 +1,10 @@
-import DashBoardNavBar from "@/components/dashboard/DashBoardNavBar";
-import DashBoardSideNavBar from "@/components/dashboard/DashBoardSideNavBar";
+import DashBoardNavBar from "@/app/components/dashboard/DashBoardNavBar";
+import DashBoardSideNavBar from "@/app/components/dashboard/DashBoardSideNavBar";
+import MobileDashBoardNavBar from "@/app/components/dashboard/MobileDashBoardNavBar";
 
 import { prisma } from "@/db";
 import { auth } from "@clerk/nextjs/server";
+import { EmployeeStatus, Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -11,22 +13,27 @@ export default async function DashBoardLayout({ children, params }: { children: 
 
     if (!userId) return redirect("/sign-up");
 
-    const owner = await prisma.organization.findUnique({
+    const employee = await prisma.employee.findFirst({
         where: {
-            id: params.organizationId,
-        },
-        select: {
-            ownerId: true,
+            profileId: userId,
+            organizationId: params.organizationId,
         }
     })
 
+    if (!employee || employee.status === EmployeeStatus.EXEMPLOYEE) return redirect("/createOrganization")
+
     return (
         <>
+            <MobileDashBoardNavBar isOwner={employee.role === Role.OWNER} isHr={employee.role === Role.HR} />
             <DashBoardNavBar />
-            <DashBoardSideNavBar isOwner={owner?.ownerId === userId} />
-            <main className="h-full md:pl-16 md:pt-24">
-                {children}
-            </main>
+            <div className="flex h-full">
+                <div className="md:w-16 h-full hidden md:block">
+                    <DashBoardSideNavBar isOwner={employee.role === Role.OWNER} isHr={employee.role === Role.HR} />
+                </div>
+                <main className="h-full md:pt-20 pt-16  flex-1">
+                    {children}
+                </main>
+            </div>
         </>
     );
 }

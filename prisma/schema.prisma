@@ -17,10 +17,11 @@ enum EmployeeStatus {
 }
 
 model Profile {
-  id       String @id
-  name     String
-  username String @unique
-  email    String @unique
+  id           String @id
+  name         String
+  username     String @unique
+  email        String @unique
+  profileImage String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -29,14 +30,22 @@ model Profile {
   Organization Organization?
 }
 
+enum Role {
+  OWNER
+  MANAGER
+  HR
+  REGULAR
+}
+
 model Employee {
-  id             String         @id @default(uuid())
-  employeeId     String         @unique
-  designation    String
-  status         EmployeeStatus @default(ACTIVE)
-  office         String
-  doj            DateTime
-  idCardImageUrl String
+  id          String         @id @default(uuid())
+  employeeId  String         @unique @default(uuid())
+  designation String
+  status      EmployeeStatus @default(ACTIVE)
+  office      String
+  doj         DateTime
+  // idCardImageUrl String
+  role        Role           @default(REGULAR)
 
   profileId String  @unique
   profile   Profile @relation(references: [id], fields: [profileId], onDelete: Cascade)
@@ -44,37 +53,23 @@ model Employee {
   organizationId String
   organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
 
-  Teams         Team[]
-  EmployeeRoles EmployeeRole[]
+  Project               Project[]
+  TeamMember            TeamMember[]
+  Channel               Channel[]
+  Team                  Team[]
+  Message               Message[]
+  DirectMessage         DirectMessage[]
+  ConversationInitiated Conversation[]  @relation("EmployeeOne")
+  ConversationReceived  Conversation[]  @relation("EmployeeTwo")
+  CreatedApplicant      Applicant[]     @relation("createdBy")
+  HiredApplicant        Applicant[]     @relation("hiredBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([organizationId])
-}
-
-enum Role {
-  OWNER
-  MANAGER
-  REGULAR
-}
-
-model EmployeeRole {
-  id   String @id @default(uuid())
-  role Role   @default(REGULAR)
-
-  employeeId String
-  employee   Employee @relation(references: [id], fields: [employeeId], onDelete: Cascade)
-
-  teamId String
-  team   Team   @relation(fields: [teamId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   @@index([employeeId])
-  @@index([teamId])
-  @@index([employeeId, role])
+  @@index([role])
 }
 
 model Organization {
@@ -86,97 +81,183 @@ model Organization {
 
   Employees Employee[]
   Teams     Team[]
-
-  Projects Project[]
+  Projects  Project[]
+  Channel   Channel[]
+  Applicant Applicant[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum TeamMemberType {
+  MANAGER
+  LEAD
+  REGULAR
 }
 
 model Team {
   id   String @id @default(uuid())
   name String
 
+  createdById String
+  createdBy   Employee @relation(references: [id], fields: [createdById])
+
   organizationId String
   organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
 
-  Employees     Employee[]
-  Projects      Project[]
-  EmployeeRoles EmployeeRole[]
+  Projects   Project[]
+  TeamMember TeamMember[]
+  Channel    Channel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([organizationId])
+  @@index([createdById])
+}
+
+model TeamMember {
+  id         String         @id @default(uuid())
+  memberType TeamMemberType @default(REGULAR)
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  @@index([employeeId])
 }
 
 model Project {
   id   String @id @default(uuid())
   name String
 
+  createdById String
+  createdBy   Employee @relation(references: [id], fields: [createdById])
+
   organizationId String
   organization   Organization @relation(references: [id], fields: [organizationId], onDelete: Cascade)
 
-  Teams Team[]
+  teamId String @unique
+  team   Team   @relation(references: [id], fields: [teamId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// model Server {
-//   id         String @id @default(uuid())
-//   name       String
-//   imageUrl   String
-//   inviteCode String
+enum ChannelType {
+  TEXT
+  VIDEO
+}
 
-//   profileId String
-//   profile   Profile @relation(fields: [profileId], references: [id])
+model Channel {
+  id          String      @id @default(uuid())
+  name        String
+  channelType ChannelType @default(TEXT)
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+  createdById String
+  createdBy   Employee @relation(fields: [createdById], references: [id])
 
-//   members  Member[]
-//   channels Channel[]
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-//   @@index([profileId])
-// }
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
-// model Member {
-//   id String @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Message   Message[]
 
-//   profileId String
-//   profile   Profile @relation(fields: [profileId], references: [id])
+  @@index([teamId])
+  @@index([organizationId])
+}
 
-//   serverId String
-//   server   Server @relation(fields: [serverId], references: [id])
+model Message {
+  id      String  @id @default(uuid())
+  content String  @db.Text
+  deleted Boolean @default(false)
+  fileUrl String? @db.Text
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
-//   @@index([profileId])
-//   @@index([serverId])
-// }
+  channelId String
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
-// enum ChannelType {
-//   TEXT
-//   AUDIO
-//   VIDEO
-// }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-// model Channel {
-//   id          String      @id @default(uuid())
-//   name        String
-//   channelType ChannelType @default(TEXT)
+  @@index([channelId])
+  @@index([employeeId])
+}
 
-//   profileId String
-//   profile   Profile @relation(fields: [profileId], references: [id])
+model Conversation {
+  id String @id @default(uuid())
 
-//   serverId String
-//   server   Server @relation(fields: [serverId], references: [id])
+  employeeOneId String
+  employeeOne   Employee @relation("EmployeeOne", fields: [employeeOneId], references: [id], onDelete: Cascade)
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+  employeeTwoId String
+  employeeTwo   Employee @relation("EmployeeTwo", fields: [employeeTwoId], references: [id], onDelete: Cascade)
 
-//   @@index([profileId])
-//   @@index([serverId])
-// }
+  directMessages DirectMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeOneId, employeeTwoId])
+  @@index([employeeOneId])
+  @@index([employeeTwoId])
+}
+
+model DirectMessage {
+  id      String  @id @default(uuid())
+  content String  @db.Text
+  fileUrl String? @db.Text
+  deleted Boolean @default(false)
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([conversationId])
+}
+
+enum ApplicantStatus {
+  RECEIVED
+  SCHEDULED
+  OFFEREXTENDED
+  HIRED
+}
+
+model Applicant {
+  id          String          @id @default(uuid())
+  name        String
+  email       String
+  designation String
+  status      ApplicantStatus @default(RECEIVED)
+  office      String
+  resumeUrl   String          @db.Text
+
+  createdById String
+  createdBy   Employee @relation("createdBy", references: [id], fields: [createdById])
+
+  hiredById String?
+  hiredBy   Employee? @relation("hiredBy", references: [id], fields: [hiredById])
+
+  organizationId String
+  organization   Organization @relation(references: [id], fields: [organizationId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

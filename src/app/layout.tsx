@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-
-import { ThemeProvider } from "@/components/providers/theme-provider";
 import { cn } from "@/lib/utils";
-import { Toaster } from "@/components/ui/toaster";
+
+import { ThemeProvider } from "@/app/components/providers/theme-provider";
+import { Toaster } from "@/app/components/ui/toaster";
+import { SocketProvider } from "@/app/components/providers/socket-provider";
+import { QueryProvider } from "@/app/components/providers/query-provider";
 
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -29,7 +31,11 @@ export default function RootLayout({
             enableSystem={false}
             storageKey="Onlyne-theme"
           >
-            {children}
+            <SocketProvider>
+              <QueryProvider>
+                {children}
+              </QueryProvider>
+            </SocketProvider>
             <Toaster />
           </ThemeProvider>
         </body>
