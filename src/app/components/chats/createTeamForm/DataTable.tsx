@@ -66,7 +66,7 @@ export function DataTable<TData, TValue>({ columns, data, teamId }: DataTablePro
                 issues: [],
             })
         }
-    }, [state?.message])
+    }, [state?.message, toast])
 
     const selectedRows = table.getFilteredSelectedRowModel().rows;
 
