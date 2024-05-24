@@ -44,13 +44,13 @@ export default function DashBoardSideNavBar({ isOwner, isHr }: { isOwner: boolea
                         </NavListItem>
                     </div>
                 </ToolTip>
-                <ToolTip toolTipContent="Projects">
+                {/* <ToolTip toolTipContent="Projects">
                     <div>
                         <NavListItem href={`/${organizatonId}/projects`} path={path}>
                             <FolderKanban size={30} />
                         </NavListItem>
                     </div>
-                </ToolTip>
+                </ToolTip> */}
                 {(isOwner || isHr) && <ToolTip toolTipContent="Applicants">
                     <div>
                         <NavListItem href={`/${organizatonId}/applicants`} path={path}>

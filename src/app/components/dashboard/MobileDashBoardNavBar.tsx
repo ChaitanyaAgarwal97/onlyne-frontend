@@ -28,9 +28,9 @@ export default function MobileDashBoardNavBar({ isOwner, isHr }: { isOwner: bool
                         <li className="flex justify-center">
                             <Link href={`/${organizationId}/chats`} className="hover:no-underline">Chats</Link>
                         </li>
-                        <li className="flex justify-center">
+                        {/* <li className="flex justify-center">
                             <Link href={`/${organizationId}/projects`} className="hover:no-underline">Projects</Link>
-                        </li>
+                        </li> */}
                         {(isOwner || isHr) && <li className="flex justify-center">
                             <Link href={`/${organizationId}/applicants`} className="hover:no-underline">Applicants</Link>
                         </li>}
