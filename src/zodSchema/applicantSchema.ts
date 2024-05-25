@@ -13,7 +13,13 @@ export const ApplicantSchema = z.object({
   designation: z.string().trim().min(1, {
     message: "Designation is required",
   }),
-  status: z.enum(["RECEIVED", "SCHEDULED", "OFFEREXTENDED", "HIRED"]),
+  status: z.enum([
+    "RECEIVED",
+    "SCHEDULED",
+    "OFFEREXTENDED",
+    "HIRED",
+    "REJECTED",
+  ]),
   office: z.string().trim().min(1, {
     message: "Office is required",
   }),

@@ -195,6 +195,7 @@ export function ApplicantForm({ applicant }: { applicant?: Applicant & { id: str
                                         <SelectItem value="SCHEDULED">Interview Scheduled</SelectItem>
                                         <SelectItem value="OFFEREXTENDED">Offer Extended</SelectItem>
                                         <SelectItem value="HIRED">Hired</SelectItem>
+                                        <SelectItem value="REJECTED">Rejected</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
