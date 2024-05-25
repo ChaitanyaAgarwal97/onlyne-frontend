@@ -6,7 +6,8 @@ import { prisma } from "@/db";
 import { auth } from "@clerk/nextjs/server";
 import { EmployeeStatus, Role } from "@prisma/client";
 import { redirect } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
+import Loading from "./loading";
 
 export default async function DashBoardLayout({ children, params }: { children: React.ReactNode, params: { organizationId: string } }) {
     const { userId } = auth();
@@ -30,9 +31,11 @@ export default async function DashBoardLayout({ children, params }: { children: 
                 <div className="md:w-16 h-full hidden md:block">
                     <DashBoardSideNavBar isOwner={employee.role === Role.OWNER} isHr={employee.role === Role.HR} />
                 </div>
-                <main className="h-full md:pt-20 pt-16  flex-1">
-                    {children}
-                </main>
+                <Suspense fallback={<Loading />}>
+                    <main className="h-full md:pt-20 pt-16  flex-1">
+                        {children}
+                    </main>
+                </Suspense>
             </div>
         </>
     );

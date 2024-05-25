@@ -102,6 +102,21 @@ export default async function DashBoardPage({ params }: { params: { organization
 
     const newEmployees = await countNewEmployees();
 
+    const jobApplicantsCount = await prisma.applicant.count({
+        where: {
+            status: {
+                notIn: ["HIRED", "REJECTED"]
+            }
+        }
+    });
+
+    const employeesOnLeaveCount = await prisma.leave.count({
+        where: {
+            rejoinedOn: null,
+            status: "APPROVED"
+        }
+    })
+
 
     return (
         <div className="container md:px-0 h-full my-4">
@@ -120,7 +135,7 @@ export default async function DashBoardPage({ params }: { params: { organization
                 </div>
                 <div className="row-span-2">
                     <StatusCard cardTitleIcon={<FileCheck size={32} />} cardTitleBgColor="bg-[hsl(184,60%,50%)]">
-                        <p className="text-bold text-3xl">{formatNum(4342)}</p>
+                        <p className="text-bold text-3xl">{formatNum(jobApplicantsCount)}</p>
                         <p className="text-sm ">Job Applicants</p>
                     </StatusCard>
                 </div>
@@ -132,8 +147,8 @@ export default async function DashBoardPage({ params }: { params: { organization
                 </div>
                 <div className="row-span-2">
                     <StatusCard cardTitleIcon={<AlarmClockCheck size={32} />} cardTitleBgColor="bg-[hsl(125,60%,50%)]">
-                        <p className="text-bold text-3xl">{formatNum(4342)}</p>
-                        <p className="text-sm ">Projects Completed</p>
+                        <p className="text-bold text-3xl">{formatNum(employeesOnLeaveCount)}</p>
+                        <p className="text-sm ">Employees on Leave</p>
                     </StatusCard>
                 </div>
                 <div className="row-span-2 md:col-span-4 lg:col-span-5">

@@ -49,7 +49,7 @@ function ChannelSection({ channels, sectionType, userEmployeeData, teamId, }: { 
             {channels && channels.length !== 0 && channels.map(channel => {
                 if (channel.channelType === sectionType)
                     return (
-                        <div key={channel.id} className="my-4 flex cursor-pointer justify-between w-full px-8 font-bold text-sm items-center dark:text-[hsl(287,60%,40%)]">
+                        <div key={channel.id} className="my-2 flex cursor-pointer justify-between w-full px-8 font-bold text-sm items-center dark:text-[hsl(287,60%,40%)] hover:dark:bg-[hsl(287,60%,20%)] py-2">
                             <button onClick={() => channelClickHandler(channel.id)} className="flex items-center space-x-2">
                                 {ChannelIconType[sectionType]}
                                 <p>{channel.name}</p>

@@ -50,6 +50,7 @@ export const ChatMessages = ({
     const chatRef = useRef<ElementRef<"div">>(null)
     const bottomRef = useRef<ElementRef<"div">>(null)
 
+
     const {
         data,
         fetchNextPage,
@@ -113,7 +114,7 @@ export const ChatMessages = ({
             <div className="flex flex-col-reverse mt-auto">
                 {data?.pages?.map((group, i) => (
                     <Fragment key={i}>
-                        {group.items?.map((message: MessageWithEmployeeWithProfile) => (
+                        {group.items instanceof Array ? group.items?.map((message: MessageWithEmployeeWithProfile) => (
                             <ChatItem
                                 key={message.id}
                                 id={message.id}
@@ -127,7 +128,26 @@ export const ChatMessages = ({
                                 socketUrl={socketUrl}
                                 socketQuery={socketQuery}
                             />
-                        ))}
+                        )) :
+                            Object.keys(group.items).map(itemKey => {
+                                const message: MessageWithEmployeeWithProfile = group.items[itemKey];
+                                return (
+                                    <ChatItem
+                                        key={message.id}
+                                        id={message.id}
+                                        currentEmployee={employee}
+                                        employee={message.employee}
+                                        content={message.content}
+                                        fileUrl={message.fileUrl}
+                                        deleted={message.deleted}
+                                        timestamp={format(new Date(message.createdAt), DATE_FORMAT)}
+                                        isUpdated={message.updatedAt !== message.createdAt}
+                                        socketUrl={socketUrl}
+                                        socketQuery={socketQuery}
+                                    />
+                                )
+                            })
+                        }
                     </Fragment>
                 ))}
             </div>

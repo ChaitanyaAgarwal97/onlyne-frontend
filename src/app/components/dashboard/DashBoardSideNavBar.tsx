@@ -1,6 +1,6 @@
 "use client"
 import { Separator } from "@/app/components/ui/separator";
-import { AlignLeft, FolderKanban, LayoutDashboard, MessagesSquare, NotebookText, Users } from "lucide-react";
+import { AlignLeft, FolderKanban, LayoutDashboard, MessagesSquare, NotebookText, UserRoundMinus, Users } from "lucide-react";
 import ToolTip from "../ToolTip";
 import { redirect, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -58,6 +58,13 @@ export default function DashBoardSideNavBar({ isOwner, isHr }: { isOwner: boolea
                         </NavListItem>
                     </div>
                 </ToolTip>}
+                <ToolTip toolTipContent="Leaves">
+                    <div>
+                        <NavListItem href={`/${organizatonId}/leaves`} path={path}>
+                            <UserRoundMinus size={30} />
+                        </NavListItem>
+                    </div>
+                </ToolTip>
             </ul>
         </nav>
     );

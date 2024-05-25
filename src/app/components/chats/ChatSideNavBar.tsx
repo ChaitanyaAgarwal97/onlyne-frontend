@@ -82,7 +82,7 @@ export default async function ChatSideNavBar({ organizationId }: { organizationI
     if (!userEmployeeData) return redirect("/createOrganization");
 
     return (
-        <nav className="md:w-72 h-full bg-[hsl(287,60%,80%)] dark:bg-[hsl(287,60%,9%)]  border-[hsl(287,60%,80%)] dark:border-[hsl(287,60%,90%)]/60 py-8 md:py-2 md:flex flex-col">
+        <nav className="md:w-96 h-full bg-[hsl(287,60%,80%)] dark:bg-[hsl(287,60%,9%)]  border-[hsl(287,60%,80%)] dark:border-[hsl(287,60%,90%)]/60 py-8 md:py-2 md:flex flex-col">
             {userEmployeeData.role === "OWNER" || userEmployeeData.role === "MANAGER" || userEmployeeData.role === "HR" ? <DropdownMenu>
                 <DropdownMenuTrigger asChild className="focus:outline-none outline-none">
                     <Button variant={"transparent"} className="w-full flex justify-between text-md focus:outline-none outline-none">

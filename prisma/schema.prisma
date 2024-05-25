@@ -63,6 +63,8 @@ model Employee {
   ConversationReceived  Conversation[]  @relation("EmployeeTwo")
   CreatedApplicant      Applicant[]     @relation("createdBy")
   HiredApplicant        Applicant[]     @relation("hiredBy")
+  AppliedLeave          Leave[]         @relation("appliedBy")
+  HandledLeave          Leave[]         @relation("handledBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -87,6 +89,7 @@ model Organization {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Leave     Leave[]
 }
 
 enum TeamMemberType {
@@ -238,6 +241,7 @@ enum ApplicantStatus {
   SCHEDULED
   OFFEREXTENDED
   HIRED
+  REJECTED
 }
 
 model Applicant {
@@ -260,4 +264,40 @@ model Applicant {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([hiredById])
+  @@index([createdById])
+}
+
+enum LeaveStatus {
+  APPLIED
+  ON_HOLD
+  APPROVED
+  REJECTED
+}
+
+model Leave {
+  id         String      @id @default(uuid())
+  reason     String      @db.Text
+  from       DateTime
+  to         DateTime
+  rejoinedOn DateTime?
+  status     LeaveStatus
+
+  appliedById String
+  appliedBy   Employee @relation("appliedBy", fields: [appliedById], references: [id])
+
+  handledById String?
+  handledBy   Employee? @relation("handledBy", fields: [handledById], references: [id])
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([handledById])
+  @@index([appliedById])
 }

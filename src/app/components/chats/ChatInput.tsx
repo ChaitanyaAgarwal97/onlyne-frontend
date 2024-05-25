@@ -12,7 +12,7 @@ import {
     FormItem,
 } from "@/app/components/ui/form"
 import { Input } from "@/app/components/ui/input"
-import { FileDiff, Paperclip, Plus, Smile, SmileIcon } from "lucide-react"
+import { FileDiff, Loader2, Paperclip, Plus, Smile, SmileIcon } from "lucide-react"
 import { Modal } from "../Modal"
 import MessageFileModal from "./MessageFileModal"
 import { EmojiPicker } from "../EmojiPicker"
@@ -89,6 +89,10 @@ export const ChatInput = ({
                                         {...field}
                                     >
                                     </Input>
+                                    <div className="absolute top-7 right-16" hidden={!isLoading}>
+                                        <Loader2 className="animate-spin h-6 w-6" />
+                                    </div>
+
                                     <div
                                         className="absolute top-7 right-8"
                                     >

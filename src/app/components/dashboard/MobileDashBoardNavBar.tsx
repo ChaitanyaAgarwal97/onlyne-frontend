@@ -34,6 +34,9 @@ export default function MobileDashBoardNavBar({ isOwner, isHr }: { isOwner: bool
                         {(isOwner || isHr) && <li className="flex justify-center">
                             <Link href={`/${organizationId}/applicants`} className="hover:no-underline">Applicants</Link>
                         </li>}
+                        <li className="flex justify-center">
+                            <Link href={`/${organizationId}/leaves`} className="hover:no-underline">Leaves</Link>
+                        </li>
                     </ul>
                 </AccordionContent>
             </AccordionItem>

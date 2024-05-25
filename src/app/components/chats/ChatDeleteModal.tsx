@@ -31,7 +31,7 @@ export default function ChatDeleteModal({ apiUrl, query }: {
 
     return (
         <div className="my-4">
-            <p>Are you sure to delete this message?</p>
+            <p className="my-4">Are you sure to delete this message?</p>
             <Button onClick={deleteButtonHandler} variant={"destructive"} className="float-right">
                 {!isPending && <div>Delete</div>}
                 {isPending && <div className="flex space-x-4 items-center"><LoaderCircle size={28} className="animate-spin" /> <p>Loading...</p></div>}
